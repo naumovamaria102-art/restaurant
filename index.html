@@ -3,1314 +3,524 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RESTOREV — Репутация ресторанов</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>RESTOREV — Рейтинг — это выручка</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;0,6..96,800;0,6..96,900;1,6..96,400;1,6..96,500;1,6..96,700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #F6F1EC;
-    --bg-warm: #EDE6DD;
-    --dark: #1C1917;
-    --dark-soft: #292524;
-    --text: #1C1917;
-    --text-mid: #78716C;
-    --text-light: #A8A29E;
-    --cream: #FDFAF6;
-    --terra: #C2512A;
-    --terra-soft: #D4714F;
-    --terra-bg: #F9E8E0;
-    --olive: #5C6B4F;
-    --olive-bg: #E8EDE3;
-    --border: #D6CFC7;
-    --border-light: #E8E2DB;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Outfit', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    cursor: default;
-  }
-
-  /* subtle grain */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.025;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 256px;
-  }
-
-  ::selection {
-    background: var(--terra);
-    color: var(--cream);
-  }
-
-  .serif { font-family: 'Instrument Serif', serif; }
-  .hand { font-family: 'Caveat', cursive; }
-
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1); }
-  .reveal.vis { opacity: 1; transform: translateY(0); }
-  .d1 { transition-delay: 0.08s; }
-  .d2 { transition-delay: 0.16s; }
-  .d3 { transition-delay: 0.24s; }
-  .d4 { transition-delay: 0.32s; }
-  .d5 { transition-delay: 0.4s; }
-
-  a { color: inherit; text-decoration: none; }
-
-  /* ===== NAV ===== */
-  header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    padding: 20px 36px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(246,241,236,0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-  }
-
-  .logo {
-    font-family: 'Instrument Serif', serif;
-    font-size: 26px;
-    font-style: italic;
-    color: var(--dark);
-  }
-
-  .nav-links { display: flex; gap: 28px; align-items: center; }
-
-  .nav-links a {
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--text-mid);
-    transition: color 0.3s;
-  }
-
-  .nav-links a:hover { color: var(--dark); }
-
-  .nav-btn {
-    background: var(--dark);
-    color: var(--cream) !important;
-    padding: 10px 24px;
-    border-radius: 100px;
-    font-weight: 500;
-    font-size: 13px !important;
-    transition: all 0.3s;
-  }
-
-  .nav-btn:hover { background: var(--terra); }
-
-  /* ===== HERO ===== */
-  .hero {
-    min-height: 100vh;
-    padding: 140px 36px 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-  }
-
-  .hero-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 32px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-mid);
-    letter-spacing: 0.5px;
-  }
-
-  .hero-tag .dot {
-    width: 8px; height: 8px;
-    background: var(--terra);
-    border-radius: 50%;
-    animation: breathe 3s ease-in-out infinite;
-  }
-
-  @keyframes breathe {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.4); opacity: 0.6; }
-  }
-
-  .hero h1 {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(56px, 9vw, 130px);
-    font-weight: 400;
-    line-height: 0.95;
-    letter-spacing: -2px;
-    margin-bottom: 40px;
-    max-width: 850px;
-  }
-
-  .hero h1 i {
-    font-style: italic;
-    color: var(--terra);
-    position: relative;
-  }
-
-  .hero h1 .light {
-    color: var(--text-light);
-  }
-
-  /* handwritten annotation */
-  .hero-note {
-    font-family: 'Caveat', cursive;
-    font-size: 22px;
-    color: var(--terra);
-    position: absolute;
-    right: 160px;
-    top: 38%;
-    transform: rotate(-6deg);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .hero-note svg {
-    flex-shrink: 0;
-    margin-top: 4px;
-  }
-
-  .hero-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-top: 48px;
-  }
-
-  .hero-desc {
-    max-width: 380px;
-    font-size: 16px;
-    line-height: 1.65;
-    color: var(--text-mid);
-    font-weight: 300;
-  }
-
-  .hero-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    padding: 18px 36px;
-    background: var(--terra);
-    color: var(--cream);
-    border-radius: 100px;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
-    white-space: nowrap;
-  }
-
-  .hero-cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(194,81,42,0.3);
-    gap: 20px;
-  }
-
-  .hero-cta svg { transition: transform 0.3s; }
-
-  /* ===== TICKER ===== */
-  .ticker {
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 20px 0;
-    overflow: hidden;
-  }
-
-  .ticker-track {
-    display: flex;
-    animation: tickerScroll 30s linear infinite;
-    width: max-content;
-  }
-
-  .ticker-item {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-size: 20px;
-    color: var(--text-light);
-    white-space: nowrap;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .ticker-item .sep {
-    width: 6px; height: 6px;
-    background: var(--terra-soft);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  @keyframes tickerScroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  /* ===== ABOUT ===== */
-  .about {
-    padding: 120px 36px;
-    display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    gap: 60px;
-    align-items: start;
-  }
-
-  .about-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: var(--text-light);
-    font-weight: 500;
-    margin-bottom: 24px;
-  }
-
-  .about h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 48px;
-    font-weight: 400;
-    line-height: 1.1;
-    margin-bottom: 28px;
-  }
-
-  .about h2 i { font-style: italic; color: var(--terra); }
-
-  .about-text {
-    font-size: 16px;
-    line-height: 1.75;
-    color: var(--text-mid);
-    font-weight: 300;
-  }
-
-  .about-text strong { color: var(--dark); font-weight: 600; }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .stat-card {
-    background: var(--cream);
-    padding: 32px 28px;
-    border-radius: 16px;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-  }
-
-  .stat-card:nth-child(3) { background: var(--terra-bg); }
-  .stat-card:nth-child(4) { background: var(--olive-bg); }
-
-  .stat-num {
-    font-family: 'Instrument Serif', serif;
-    font-size: 52px;
-    font-weight: 400;
-    line-height: 1;
-    margin-bottom: 6px;
-    color: var(--dark);
-  }
-
-  .stat-card:nth-child(3) .stat-num { color: var(--terra); }
-  .stat-card:nth-child(4) .stat-num { color: var(--olive); }
-
-  .stat-text {
-    font-size: 13px;
-    color: var(--text-mid);
-    line-height: 1.4;
-  }
-
-  /* ===== SERVICES ===== */
-  .services {
-    padding: 100px 36px 120px;
-    background: var(--dark);
-    color: var(--cream);
-    position: relative;
-    border-radius: 24px;
-    margin: 0 16px;
-  }
-
-  .services-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 64px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .services h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 56px;
-    font-weight: 400;
-    line-height: 1.05;
-  }
-
-  .services h2 i { font-style: italic; color: var(--terra-soft); }
-
-  .services-note {
-    font-family: 'Caveat', cursive;
-    font-size: 20px;
-    color: var(--terra-soft);
-    transform: rotate(-4deg);
-    margin-bottom: 8px;
-  }
-
-  .srv-list { display: flex; flex-direction: column; }
-
-  .srv-row {
-    display: grid;
-    grid-template-columns: 56px 1.2fr 1fr;
-    gap: 32px;
-    align-items: start;
-    padding: 36px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    transition: all 0.3s;
-    cursor: default;
-  }
-
-  .srv-row:hover { padding-left: 12px; }
-  .srv-row:hover .srv-idx { color: var(--terra-soft); }
-
-  .srv-idx {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-size: 18px;
-    color: rgba(255,255,255,0.2);
-    padding-top: 3px;
-    transition: color 0.3s;
-  }
-
-  .srv-name {
-    font-size: 24px;
-    font-weight: 500;
-    line-height: 1.25;
-    letter-spacing: -0.3px;
-  }
-
-  .srv-about {
-    font-size: 14px;
-    line-height: 1.7;
-    color: rgba(255,255,255,0.4);
-    font-weight: 300;
-    padding-top: 4px;
-  }
-
-  /* ===== PLATFORMS ===== */
-  .platforms {
-    padding: 120px 36px;
-  }
-
-  .platforms-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 48px;
-  }
-
-  .platforms h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 48px;
-    font-weight: 400;
-  }
-
-  .platforms h2 i { font-style: italic; color: var(--terra); }
-
-  .plat-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-
-  .plat-card {
-    background: var(--cream);
-    border-radius: 16px;
-    padding: 36px 28px;
-    transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .plat-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 16px;
-    border: 2px solid transparent;
-    transition: border-color 0.3s;
-    pointer-events: none;
-  }
-
-  .plat-card:hover {
-    transform: translateY(-4px) rotate(-0.5deg);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.08);
-  }
-
-  .plat-card:hover::after { border-color: var(--terra); }
-
-  .plat-emoji {
-    font-size: 32px;
-    margin-bottom: 16px;
-    display: block;
-  }
-
-  .plat-name {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-
-  .plat-desc {
-    font-size: 13px;
-    color: var(--text-mid);
-    line-height: 1.5;
-    font-weight: 300;
-  }
-
-  /* ===== PROCESS ===== */
-  .process {
-    padding: 120px 36px;
-    background: var(--bg-warm);
-    border-radius: 24px;
-    margin: 0 16px;
-  }
-
-  .process-layout {
-    display: grid;
-    grid-template-columns: 1fr 1.6fr;
-    gap: 80px;
-  }
-
-  .process-sticky {
-    position: sticky;
-    top: 120px;
-    height: fit-content;
-  }
-
-  .process h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 52px;
-    font-weight: 400;
-    line-height: 1.05;
-    margin-bottom: 20px;
-  }
-
-  .process h2 i { font-style: italic; }
-
-  .process-sub {
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--text-mid);
-    font-weight: 300;
-    margin-bottom: 32px;
-  }
-
-  .process-hand {
-    font-family: 'Caveat', cursive;
-    font-size: 24px;
-    color: var(--terra);
-    transform: rotate(-3deg);
-    display: inline-block;
-  }
-
-  .steps { display: flex; flex-direction: column; gap: 16px; }
-
-  .step-card {
-    background: var(--cream);
-    border-radius: 16px;
-    padding: 36px 32px;
-    display: grid;
-    grid-template-columns: 64px 1fr;
-    gap: 24px;
-    transition: all 0.3s;
-    position: relative;
-  }
-
-  .step-card:hover {
-    transform: translateX(6px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-  }
-
-  .step-card:hover .step-n { color: var(--terra); }
-
-  .step-n {
-    font-family: 'Instrument Serif', serif;
-    font-size: 48px;
-    font-style: italic;
-    color: var(--border);
-    line-height: 1;
-    transition: color 0.3s;
-  }
-
-  .step-card h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    letter-spacing: -0.2px;
-  }
-
-  .step-card p {
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--text-mid);
-    font-weight: 300;
-  }
-
-  /* ===== WHY US ===== */
-  .why {
-    padding: 120px 36px;
-  }
-
-  .why-header {
-    margin-bottom: 56px;
-  }
-
-  .why h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 52px;
-    font-weight: 400;
-  }
-
-  .why h2 i { font-style: italic; color: var(--terra); }
-
-  .why-mosaic {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 16px;
-  }
-
-  .why-tile {
-    background: var(--cream);
-    border-radius: 16px;
-    padding: 36px 28px;
-    transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
-    position: relative;
-  }
-
-  .why-tile:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.07);
-  }
-
-  .why-tile-n {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-size: 14px;
-    color: var(--terra);
-    margin-bottom: 16px;
-  }
-
-  .why-tile h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    letter-spacing: -0.2px;
-    line-height: 1.25;
-  }
-
-  .why-tile p {
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--text-mid);
-    font-weight: 300;
-  }
-
-  .why-tile.hero-tile {
-    grid-column: 3;
-    grid-row: 1 / 3;
-    background: var(--dark);
-    color: var(--cream);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .why-tile.hero-tile p { color: rgba(255,255,255,0.45); }
-
-  .hero-tile-big {
-    font-family: 'Instrument Serif', serif;
-    font-size: 100px;
-    font-style: italic;
-    color: var(--terra-soft);
-    line-height: 0.9;
-    margin-bottom: 12px;
-  }
-
-  .hero-tile-caption {
-    font-size: 15px;
-    color: rgba(255,255,255,0.45);
-    line-height: 1.5;
-    font-weight: 300;
-  }
-
-  /* ===== REVIEWS ===== */
-  .reviews {
-    padding: 100px 36px 120px;
-    background: var(--dark);
-    color: var(--cream);
-    border-radius: 24px;
-    margin: 0 16px;
-    position: relative;
-  }
-
-  .reviews-top {
-    margin-bottom: 56px;
-  }
-
-  .reviews h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 52px;
-    font-weight: 400;
-  }
-
-  .reviews h2 i { font-style: italic; color: var(--terra-soft); }
-
-  .rev-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .rev-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 36px 28px;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s;
-  }
-
-  .rev-card:hover {
-    background: rgba(255,255,255,0.07);
-    border-color: rgba(255,255,255,0.1);
-    transform: translateY(-3px);
-  }
-
-  .rev-stars {
-    color: var(--terra-soft);
-    font-size: 14px;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-  }
-
-  .rev-text {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-size: 17px;
-    line-height: 1.6;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 28px;
-    flex: 1;
-  }
-
-  .rev-who {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .rev-ava {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: var(--terra);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--cream);
-    font-family: 'Outfit', sans-serif;
-  }
-
-  .rev-name { font-size: 14px; font-weight: 500; }
-  .rev-role { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 2px; }
-
-  /* ===== BIG CTA ===== */
-  .cta {
-    padding: 160px 36px;
-    text-align: center;
-    position: relative;
-  }
-
-  .cta h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(44px, 7vw, 88px);
-    font-weight: 400;
-    line-height: 1.05;
-    max-width: 800px;
-    margin: 0 auto 20px;
-    letter-spacing: -1px;
-  }
-
-  .cta h2 i { font-style: italic; color: var(--terra); }
-
-  .cta-sub {
-    font-size: 16px;
-    color: var(--text-mid);
-    max-width: 420px;
-    margin: 0 auto 40px;
-    line-height: 1.65;
-    font-weight: 300;
-  }
-
-  .cta-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    padding: 20px 44px;
-    background: var(--dark);
-    color: var(--cream);
-    border-radius: 100px;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
-  }
-
-  .cta-btn:hover {
-    background: var(--terra);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(194,81,42,0.25);
-    gap: 20px;
-  }
-
-  .cta-hand {
-    font-family: 'Caveat', cursive;
-    font-size: 22px;
-    color: var(--terra);
-    margin-top: 24px;
-    transform: rotate(-2deg);
-    display: inline-block;
-  }
-
-  /* ===== CONTACT ===== */
-  .contact {
-    padding: 100px 36px 120px;
-    background: var(--dark);
-    color: var(--cream);
-    border-radius: 24px;
-    margin: 0 16px;
-  }
-
-  .contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-  }
-
-  .contact h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 48px;
-    font-weight: 400;
-    margin-bottom: 20px;
-    line-height: 1.1;
-  }
-
-  .contact h2 i { font-style: italic; }
-
-  .contact-desc {
-    font-size: 15px;
-    color: rgba(255,255,255,0.4);
-    line-height: 1.65;
-    font-weight: 300;
-    margin-bottom: 36px;
-    max-width: 340px;
-  }
-
-  .contact-links {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .contact-links a {
-    font-size: 14px;
-    color: rgba(255,255,255,0.45);
-    transition: color 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .contact-links a:hover { color: var(--terra-soft); }
-  .contact-links a::before { content: '→'; color: var(--terra-soft); }
-
-  .c-form { display: flex; flex-direction: column; padding-top: 8px; }
-
-  .c-field {
-    background: none;
-    border: none;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    color: var(--cream);
-    font-family: 'Outfit', sans-serif;
-    font-size: 15px;
-    font-weight: 300;
-    padding: 22px 0;
-    outline: none;
-    transition: border-color 0.3s;
-    width: 100%;
-  }
-
-  .c-field::placeholder { color: rgba(255,255,255,0.2); }
-  .c-field:focus { border-color: var(--terra-soft); }
-
-  .c-btn {
-    margin-top: 28px;
-    padding: 18px 40px;
-    background: var(--terra);
-    color: var(--cream);
-    border: none;
-    border-radius: 100px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s;
-    width: fit-content;
-  }
-
-  .c-btn:hover { background: var(--terra-soft); transform: translateY(-1px); }
-
-  /* ===== CONSULTING ===== */
-  .consulting {
-    padding: 120px 36px;
-    text-align: center;
-  }
-
-  .consulting h2 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 48px;
-    font-weight: 400;
-    margin-bottom: 12px;
-  }
-
-  .consulting h2 i { font-style: italic; }
-
-  .cons-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 20px;
-    background: var(--cream);
-    border-radius: 100px;
-    font-size: 13px;
-    color: var(--text-mid);
-    margin-bottom: 48px;
-  }
-
-  .cons-tag .pulse-dot {
-    width: 8px; height: 8px;
-    background: var(--terra);
-    border-radius: 50%;
-    animation: breathe 2.5s ease-in-out infinite;
-  }
-
-  .cons-box {
-    max-width: 520px;
-    margin: 0 auto;
-    border: 2px dashed var(--border);
-    border-radius: 16px;
-    padding: 72px 40px;
-  }
-
-  .cons-box p {
-    color: var(--text-light);
-    font-size: 15px;
-    line-height: 1.6;
-    font-weight: 300;
-  }
-
-  /* ===== FOOTER ===== */
-  footer {
-    padding: 40px 36px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid var(--border-light);
-    margin-top: 20px;
-  }
-
-  .f-logo {
-    font-family: 'Instrument Serif', serif;
-    font-style: italic;
-    font-size: 20px;
-  }
-
-  .f-links {
-    display: flex;
-    gap: 24px;
-  }
-
-  .f-links a {
-    font-size: 13px;
-    color: var(--text-mid);
-    transition: color 0.3s;
-  }
-
-  .f-links a:hover { color: var(--terra); }
-
-  .f-copy {
-    font-size: 12px;
-    color: var(--text-light);
-  }
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#111110;
+  --paper:#F7F5F1;
+  --paper-dark:#EFECE6;
+  --mid:#7A7770;
+  --quiet:#B0ACA5;
+  --whisper:#D4D0C9;
+  --ember:#C14025;
+  --ember-dim:rgba(193,64,37,0.08);
+  --ember-glow:0 8px 40px rgba(193,64,37,0.2);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+/* grain */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  opacity:0.018;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") repeat;
+  background-size:180px;
+}
+::selection{background:var(--ink);color:var(--paper)}
+a{color:inherit;text-decoration:none}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.rv.v{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}.d5{transition-delay:.3s}
+
+/* typography */
+.serif{font-family:'Bodoni Moda',serif}
+.label{font-size:11px;letter-spacing:4px;text-transform:uppercase;font-weight:600;color:var(--quiet)}
+.label::before{content:'';display:inline-block;width:16px;height:1px;background:var(--ember);margin-right:12px;vertical-align:middle}
+
+/* ===== NAV ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:20px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+  mix-blend-mode:difference;
+}
+.n-logo{font-family:'Bodoni Moda',serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase}
+.n-links{display:flex;gap:32px;align-items:center}
+.n-links a{font-size:12px;font-weight:500;color:#fff;letter-spacing:1px;text-transform:uppercase;opacity:.6;transition:opacity .3s}
+.n-links a:hover{opacity:1}
+.n-cta{opacity:1!important;border:1px solid rgba(255,255,255,.3)!important;padding:10px 24px;transition:all .3s!important}
+.n-cta:hover{background:#fff!important;color:#000!important;opacity:1!important}
+
+/* ===== HERO ===== */
+.hero{
+  min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 48px 64px;position:relative;
+  overflow:hidden;
+}
+.hero-num{
+  position:absolute;top:100px;right:48px;
+  font-family:'Bodoni Moda',serif;font-size:280px;font-weight:900;
+  color:var(--ink);opacity:.03;line-height:.85;pointer-events:none;letter-spacing:-12px;
+}
+.hero h1{
+  font-family:'Bodoni Moda',serif;
+  font-size:clamp(56px,8.5vw,128px);
+  font-weight:400;line-height:.9;letter-spacing:-3px;
+  margin-bottom:0;max-width:920px;
+}
+.hero h1 .ln{display:block;overflow:hidden}
+.hero h1 .ln span{display:inline-block;transform:translateY(120%);animation:lnUp .9s cubic-bezier(.16,1,.3,1) forwards}
+.hero h1 .ln:nth-child(2) span{animation-delay:.1s}
+.hero h1 .ln:nth-child(3) span{animation-delay:.2s}
+@keyframes lnUp{to{transform:none}}
+.hero h1 em{font-style:italic;font-weight:400}
+.hero h1 .stroke{-webkit-text-stroke:1.5px var(--ink);color:transparent}
+
+.hero-rule{width:100%;height:1px;background:var(--whisper);margin:48px 0 36px;position:relative}
+.hero-rule::after{content:'';position:absolute;left:0;top:-1px;width:80px;height:3px;background:var(--ember)}
+
+.hero-foot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:48px;align-items:end}
+.hero-desc{font-size:15px;line-height:1.7;color:var(--mid);font-weight:400;max-width:340px}
+.hero-metric{text-align:center}
+.hero-metric-val{font-family:'Bodoni Moda',serif;font-size:64px;font-weight:700;line-height:1;color:var(--ink)}
+.hero-metric-lbl{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--quiet);margin-top:4px}
+.hero-cta-col{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 32px;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  font-family:'Syne',sans-serif;
+  transition:all .4s cubic-bezier(.16,1,.3,1);cursor:pointer;border:none;
+}
+.btn-dark{background:var(--ink);color:var(--paper)}
+.btn-dark:hover{box-shadow:0 12px 40px rgba(17,17,16,.25);transform:translateY(-2px)}
+.btn-ember{background:var(--ember);color:var(--paper)}
+.btn-ember:hover{box-shadow:var(--ember-glow);transform:translateY(-2px)}
+.btn-ghost{background:none;color:var(--ink);border:1px solid var(--whisper);padding:14px 28px}
+.btn-ghost:hover{border-color:var(--ink)}
+
+.btn svg{transition:transform .3s}
+.btn:hover svg{transform:translateX(3px)}
+.arrow{width:16px;height:16px}
+
+/* ===== TENSION ===== */
+.tension{
+  padding:120px 48px;
+  display:grid;grid-template-columns:1fr 1px 1fr;gap:64px;
+  border-top:1px solid var(--whisper);
+}
+.tension-line{background:var(--whisper)}
+.tension h2{font-family:'Bodoni Moda',serif;font-size:40px;font-weight:400;line-height:1.15;letter-spacing:-1px}
+.tension h2 em{font-style:italic;color:var(--ember)}
+.tension-text{font-size:15px;line-height:1.8;color:var(--mid);font-weight:400;display:flex;align-items:center}
+
+/* ===== SERVICES ===== */
+.services{
+  margin:0 20px;padding:80px 48px 100px;
+  background:var(--ink);color:var(--paper);
+  border-radius:20px;position:relative;overflow:hidden;
+}
+.services::before{
+  content:'R';position:absolute;bottom:-60px;right:-20px;
+  font-family:'Bodoni Moda',serif;font-size:500px;font-weight:900;
+  color:rgba(255,255,255,.015);line-height:.8;pointer-events:none;
+}
+.services-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:64px}
+.services h2{font-family:'Bodoni Moda',serif;font-size:52px;font-weight:400;letter-spacing:-1px;line-height:1}
+.services h2 em{font-style:italic}
+
+.srv{
+  display:grid;grid-template-columns:56px 1fr .8fr;gap:32px;
+  padding:28px 0;border-bottom:1px solid rgba(255,255,255,.06);
+  transition:padding .3s;cursor:default;
+}
+.srv:first-of-type{border-top:1px solid rgba(255,255,255,.06)}
+.srv:hover{padding-left:12px}
+.srv:hover .srv-i{color:var(--ember)}
+.srv:hover .srv-arr{opacity:1;transform:none}
+.srv-i{font-family:'Bodoni Moda',serif;font-style:italic;font-size:15px;color:rgba(255,255,255,.15);transition:color .3s;padding-top:2px}
+.srv-n{font-size:20px;font-weight:600;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+.srv-arr{opacity:0;transform:translateX(-6px);transition:all .3s;font-size:14px;color:var(--ember)}
+.srv-d{font-size:13px;line-height:1.65;color:rgba(255,255,255,.35);font-weight:400;padding-top:3px}
+
+/* ===== PLATFORMS ===== */
+.plats{padding:120px 48px}
+.plats-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px}
+.plats h2{font-family:'Bodoni Moda',serif;font-size:48px;font-weight:400;letter-spacing:-1px}
+.plats h2 em{font-style:italic;color:var(--ember)}
+.plat-row{
+  display:flex;gap:0;border-top:1px solid var(--whisper);border-bottom:1px solid var(--whisper);
+}
+.plat{
+  flex:1;padding:36px 28px;border-right:1px solid var(--whisper);
+  transition:all .3s;position:relative;
+}
+.plat:last-child{border-right:none}
+.plat:hover{background:var(--ink);color:var(--paper)}
+.plat:hover .plat-d{color:rgba(255,255,255,.5)}
+.plat-n{font-size:17px;font-weight:600;margin-bottom:6px;letter-spacing:-.2px}
+.plat-d{font-size:12px;color:var(--mid);line-height:1.5;font-weight:400;transition:color .3s}
+
+/* ===== RESULTS ===== */
+.results{
+  padding:120px 48px;
+  background:var(--paper-dark);
+  border-top:1px solid var(--whisper);
+}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:64px}
+.result{
+  padding:56px 48px;border-right:1px solid var(--whisper);border-bottom:1px solid var(--whisper);
+  transition:background .3s;
+}
+.result:nth-child(2n){border-right:none}
+.result:nth-child(n+3){border-bottom:none}
+.result:hover{background:var(--paper)}
+.result-val{font-family:'Bodoni Moda',serif;font-size:72px;font-weight:700;line-height:1;letter-spacing:-2px;margin-bottom:8px}
+.result-val .emb{color:var(--ember)}
+.result-lbl{font-size:14px;color:var(--mid);line-height:1.5;font-weight:400}
+
+/* ===== PROCESS ===== */
+.process{padding:120px 48px}
+.process-lay{display:grid;grid-template-columns:1fr 1.8fr;gap:80px}
+.process-sticky{position:sticky;top:120px;height:fit-content}
+.process h2{font-family:'Bodoni Moda',serif;font-size:52px;font-weight:400;letter-spacing:-1px;line-height:1.05;margin-bottom:20px}
+.process h2 em{font-style:italic}
+.process-sub{font-size:15px;line-height:1.7;color:var(--mid);font-weight:400}
+.steps{display:flex;flex-direction:column;gap:0}
+.stp{
+  display:grid;grid-template-columns:80px 1fr;gap:32px;
+  padding:40px 0;border-bottom:1px solid var(--whisper);
+}
+.stp:first-child{border-top:1px solid var(--whisper)}
+.stp:hover .stp-n{color:var(--ember)}
+.stp-n{font-family:'Bodoni Moda',serif;font-style:italic;font-size:56px;font-weight:400;color:var(--whisper);line-height:1;transition:color .4s}
+.stp h3{font-size:18px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px}
+.stp p{font-size:14px;line-height:1.65;color:var(--mid);font-weight:400}
+
+/* ===== FOR WHOM ===== */
+.whom{
+  margin:0 20px;padding:80px 48px 100px;
+  background:var(--ink);color:var(--paper);border-radius:20px;
+}
+.whom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);margin-top:56px}
+.whom-card{background:var(--ink);padding:40px 32px;transition:background .3s}
+.whom-card:hover{background:rgba(255,255,255,.03)}
+.whom-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
+.whom-card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,.4);font-weight:400}
+
+/* ===== FAQ ===== */
+.faq{padding:120px 48px}
+.faq-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;margin-top:56px}
+.faq h2{font-family:'Bodoni Moda',serif;font-size:48px;font-weight:400;letter-spacing:-1px}
+.faq h2 em{font-style:italic}
+.faq-list{display:flex;flex-direction:column}
+.faq-item{border-bottom:1px solid var(--whisper);overflow:hidden}
+.faq-q{
+  padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  font-size:16px;font-weight:600;letter-spacing:-.2px;transition:color .3s;
+}
+.faq-q:hover{color:var(--ember)}
+.faq-q .plus{font-family:'Bodoni Moda',serif;font-size:24px;font-weight:400;color:var(--quiet);transition:transform .3s,color .3s}
+.faq-item.open .plus{transform:rotate(45deg);color:var(--ember)}
+.faq-a{max-height:0;transition:max-height .4s cubic-bezier(.16,1,.3,1);overflow:hidden}
+.faq-item.open .faq-a{max-height:200px}
+.faq-a p{padding:0 0 24px;font-size:14px;line-height:1.7;color:var(--mid);font-weight:400}
+
+/* ===== CONSULTING ===== */
+.consulting{
+  padding:100px 48px;text-align:center;
+  border-top:1px solid var(--whisper);
+}
+.consulting h2{font-family:'Bodoni Moda',serif;font-size:44px;font-weight:400;letter-spacing:-1px;margin-bottom:12px}
+.consulting h2 em{font-style:italic}
+.cons-tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--quiet);letter-spacing:2px;text-transform:uppercase;margin-bottom:40px}
+.cons-tag .dot{width:6px;height:6px;background:var(--ember);border-radius:50%;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.cons-box{max-width:480px;margin:0 auto;border:1px solid var(--whisper);padding:60px 36px}
+.cons-box p{font-size:14px;color:var(--quiet);line-height:1.6}
+
+/* ===== FINAL CTA ===== */
+.final-cta{
+  margin:0 20px;padding:120px 48px;text-align:center;
+  background:var(--ink);color:var(--paper);border-radius:20px;
+  position:relative;overflow:hidden;
+}
+.final-cta::before{
+  content:'';position:absolute;top:50%;left:50%;
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(193,64,37,.06),transparent 70%);
+  transform:translate(-50%,-50%);pointer-events:none;
+}
+.final-cta h2{
+  font-family:'Bodoni Moda',serif;font-size:clamp(40px,6vw,80px);font-weight:400;
+  line-height:1;letter-spacing:-2px;margin-bottom:24px;position:relative;
+}
+.final-cta h2 em{font-style:italic;color:var(--ember)}
+.final-cta p{font-size:15px;color:rgba(255,255,255,.4);max-width:400px;margin:0 auto 40px;line-height:1.65;position:relative}
+
+/* ===== CONTACT ===== */
+.contact{padding:100px 48px;border-top:1px solid var(--whisper)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px}
+.contact h2{font-family:'Bodoni Moda',serif;font-size:44px;font-weight:400;letter-spacing:-1px;margin-bottom:20px}
+.contact h2 em{font-style:italic}
+.contact-desc{font-size:14px;line-height:1.7;color:var(--mid);font-weight:400;margin-bottom:32px;max-width:320px}
+.contact-links{display:flex;flex-direction:column;gap:12px}
+.contact-links a{font-size:14px;color:var(--mid);transition:color .3s;display:flex;align-items:center;gap:8px}
+.contact-links a:hover{color:var(--ember)}
+.contact-links a::before{content:'→';color:var(--ember)}
+.c-form{display:flex;flex-direction:column}
+.c-inp{
+  background:none;border:none;border-bottom:1px solid var(--whisper);
+  padding:20px 0;font-size:14px;font-family:'Syne',sans-serif;font-weight:400;
+  color:var(--ink);outline:none;transition:border-color .3s;width:100%;
+}
+.c-inp::placeholder{color:var(--quiet)}
+.c-inp:focus{border-color:var(--ember)}
+.c-submit{
+  margin-top:28px;width:fit-content;
+  padding:16px 36px;background:var(--ink);color:var(--paper);
+  border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .3s;
+}
+.c-submit:hover{background:var(--ember);box-shadow:var(--ember-glow)}
+
+/* ===== FOOTER ===== */
+footer{
+  padding:32px 48px;display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--whisper);margin-top:20px;
+}
+.f-logo{font-family:'Bodoni Moda',serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+.f-mid{display:flex;gap:24px}
+.f-mid a{font-size:12px;color:var(--mid);transition:color .3s;letter-spacing:.5px}
+.f-mid a:hover{color:var(--ink)}
+.f-copy{font-size:11px;color:var(--quiet)}
 </style>
 </head>
 <body>
 
-<header>
-  <a href="#" class="logo">restorev</a>
-  <div class="nav-links">
-    <a href="#services">услуги</a>
-    <a href="#process">процесс</a>
-    <a href="#reviews">отзывы</a>
-    <a href="#consulting">консалтинг</a>
-    <a href="#contact" class="nav-btn">оставить заявку</a>
+<!-- NAV -->
+<nav>
+  <div class="n-logo">Restorev</div>
+  <div class="n-links">
+    <a href="#services">Услуги</a>
+    <a href="#results">Результаты</a>
+    <a href="#process">Процесс</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact" class="n-cta">Обсудить задачу</a>
   </div>
-</header>
+</nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="hero-tag reveal"><span class="dot"></span> управление репутацией ресторанов</div>
-  <h1 class="reveal d1">
-    Отзывы,<br>
-    <i>которые</i><br>
-    <span class="light">продают</span>
+<section class="hero" id="hero">
+  <div class="hero-num">4.8</div>
+  <h1>
+    <span class="ln"><span>Рейтинг — </span></span>
+    <span class="ln"><span>это <em>выручка.</em></span></span>
   </h1>
-  <div class="hero-note">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 7 7 17M7 7v10h10"/></svg>
-    это про вас ↓
-  </div>
-  <div class="hero-bottom reveal d2">
-    <p class="hero-desc">
-      Формируем репутацию вашего ресторана на Яндекс&nbsp;Картах, 2ГИС, Google — системно, честно, с&nbsp;результатом
-    </p>
-    <a href="#contact" class="hero-cta">
-      бесплатный аудит
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
+  <div class="hero-rule"></div>
+  <div class="hero-foot rv d1">
+    <p class="hero-desc">Управляем отзывами ресторанов на Яндексе, 2ГИС и ключевых площадках. Системно. С&nbsp;гарантией в&nbsp;договоре.</p>
+    <div class="hero-metric">
+      <div class="hero-metric-val">93%</div>
+      <div class="hero-metric-lbl">гостей выбирают<br>по отзывам</div>
+    </div>
+    <div class="hero-cta-col">
+      <a href="#contact" class="btn btn-dark">
+        Обсудить задачу
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
   </div>
 </section>
 
-<!-- TICKER -->
-<div class="ticker">
-  <div class="ticker-track">
-    <span class="ticker-item">Яндекс Карты <span class="sep"></span></span>
-    <span class="ticker-item">2ГИС <span class="sep"></span></span>
-    <span class="ticker-item">Google Maps <span class="sep"></span></span>
-    <span class="ticker-item">TripAdvisor <span class="sep"></span></span>
-    <span class="ticker-item">Zoon <span class="sep"></span></span>
-    <span class="ticker-item">Flamp <span class="sep"></span></span>
-    <span class="ticker-item">Отзовик <span class="sep"></span></span>
-    <span class="ticker-item">Яндекс Карты <span class="sep"></span></span>
-    <span class="ticker-item">2ГИС <span class="sep"></span></span>
-    <span class="ticker-item">Google Maps <span class="sep"></span></span>
-    <span class="ticker-item">TripAdvisor <span class="sep"></span></span>
-    <span class="ticker-item">Zoon <span class="sep"></span></span>
-    <span class="ticker-item">Flamp <span class="sep"></span></span>
-    <span class="ticker-item">Отзовик <span class="sep"></span></span>
+<!-- TENSION -->
+<section class="tension">
+  <div class="rv">
+    <div class="label">проблема</div>
+    <h2 style="margin-top:20px">Низкий рейтинг<br>стоит вам <em>гостей</em><br>каждый день</h2>
   </div>
-</div>
-
-<!-- ABOUT -->
-<section class="about">
-  <div class="reveal">
-    <div class="about-label">о нас</div>
-    <h2>Мы строим <i>репутацию</i>,<br>которая работает на вас</h2>
-    <p class="about-text">
-      <strong>93% гостей</strong> выбирают ресторан по отзывам. Мы не «накручиваем звёзды» — мы выстраиваем стратегию, которая превращает онлайн-рейтинг в реальную выручку.
-      <br><br>
-      Прозрачно. С индивидуальным подходом. С <strong>гарантией в договоре.</strong>
-    </p>
-  </div>
-  <div class="stats-grid">
-    <div class="stat-card reveal">
-      <div class="stat-num">200+</div>
-      <div class="stat-text">ресторанов<br>доверяют нам</div>
-    </div>
-    <div class="stat-card reveal d1">
-      <div class="stat-num">15K</div>
-      <div class="stat-text">отзывов<br>опубликовано</div>
-    </div>
-    <div class="stat-card reveal d2">
-      <div class="stat-num">4.8</div>
-      <div class="stat-text">средний рейтинг<br>наших клиентов</div>
-    </div>
-    <div class="stat-card reveal d3">
-      <div class="stat-num">+40%</div>
-      <div class="stat-text">рост бронирований<br>за 3 месяца</div>
-    </div>
+  <div class="tension-line"></div>
+  <div class="tension-text rv d1">
+    <p style="max-width:380px">Каждый потерянный балл — это минус 9% выручки. Негативный отзыв без ответа отпугивает до 40 потенциальных гостей. Рейтинг ниже 4.5 — ресторан теряет позиции в выдаче. Это не про «красивые звёзды». Это про деньги.</p>
   </div>
 </section>
 
 <!-- SERVICES -->
 <section class="services" id="services">
-  <div class="services-top reveal">
-    <h2>Что мы <i>делаем</i></h2>
-    <div class="services-note">полный цикл, под ключ ✦</div>
+  <div class="services-top rv">
+    <h2>Что мы <em>делаем</em></h2>
+    <div class="label" style="color:rgba(255,255,255,.3)">услуги</div>
   </div>
-  <div class="srv-list">
-    <div class="srv-row reveal">
-      <div class="srv-idx">01</div>
-      <div class="srv-name">Формирование отзывов</div>
-      <div class="srv-about">Уникальные отзывы на всех площадках от реальных аккаунтов с историей. Яндекс, 2ГИС, Google, TripAdvisor</div>
-    </div>
-    <div class="srv-row reveal d1">
-      <div class="srv-idx">02</div>
-      <div class="srv-name">Работа с негативом</div>
-      <div class="srv-about">Профессиональные ответы, нейтрализация угроз. Критиков превращаем в лояльных гостей</div>
-    </div>
-    <div class="srv-row reveal d2">
-      <div class="srv-idx">03</div>
-      <div class="srv-name">Мониторинг и аналитика</div>
-      <div class="srv-about">Рейтинги в реальном времени. Еженедельные отчёты с метриками и рекомендациями по росту</div>
-    </div>
-    <div class="srv-row reveal d3">
-      <div class="srv-idx">04</div>
-      <div class="srv-name">Управление карточками</div>
-      <div class="srv-about">Оформление и оптимизация: фото, описание, меню, часы работы — актуальное на всех площадках</div>
-    </div>
-    <div class="srv-row reveal d4">
-      <div class="srv-idx">05</div>
-      <div class="srv-name">SERM-стратегия</div>
-      <div class="srv-about">Управление репутацией в поисковой выдаче. Вытесняем негатив, усиливаем позитив</div>
-    </div>
-  </div>
+  <div class="srv rv"><div class="srv-i">01</div><div class="srv-n">Формирование отзывов <span class="srv-arr">→</span></div><div class="srv-d">Публикация уникальных отзывов на ключевых площадках от верифицированных аккаунтов с историей активности</div></div>
+  <div class="srv rv d1"><div class="srv-i">02</div><div class="srv-n">Нейтрализация негатива <span class="srv-arr">→</span></div><div class="srv-d">Профессиональные ответы, работа с площадками по удалению фейков, перекрытие негатива</div></div>
+  <div class="srv rv d2"><div class="srv-i">03</div><div class="srv-n">Управление карточками <span class="srv-arr">→</span></div><div class="srv-d">Оптимизация карточек: фото, описание, меню, актуальная информация — полный порядок на каждой площадке</div></div>
+  <div class="srv rv d3"><div class="srv-i">04</div><div class="srv-n">Мониторинг и аналитика <span class="srv-arr">→</span></div><div class="srv-d">Отслеживание рейтингов в реальном времени. Еженедельные отчёты с динамикой и рекомендациями</div></div>
+  <div class="srv rv d4"><div class="srv-i">05</div><div class="srv-n">SERM <span class="srv-arr">→</span></div><div class="srv-d">Управление репутацией в поисковой выдаче. Контроль того, что видит гость, когда ищет ваш ресторан</div></div>
 </section>
 
 <!-- PLATFORMS -->
-<section class="platforms" style="margin-top: 40px;">
-  <div class="platforms-top reveal">
-    <h2>Все <i>площадки</i></h2>
-    <div class="about-label" style="margin-bottom: 0;">где мы работаем</div>
+<section class="plats" style="margin-top:40px" id="platforms">
+  <div class="plats-top rv">
+    <h2>Где мы <em>работаем</em></h2>
+    <div class="label">площадки</div>
   </div>
-  <div class="plat-grid">
-    <div class="plat-card reveal">
-      <span class="plat-emoji">📍</span>
-      <div class="plat-name">Яндекс Карты</div>
-      <div class="plat-desc">Главная площадка для ресторанов России</div>
-    </div>
-    <div class="plat-card reveal d1">
-      <span class="plat-emoji">🗺️</span>
-      <div class="plat-name">2ГИС</div>
-      <div class="plat-desc">Вторая по охвату карточная платформа</div>
-    </div>
-    <div class="plat-card reveal d2">
-      <span class="plat-emoji">🌍</span>
-      <div class="plat-name">Google Maps</div>
-      <div class="plat-desc">Международная аудитория и туристы</div>
-    </div>
-    <div class="plat-card reveal d3">
-      <span class="plat-emoji">⭐</span>
-      <div class="plat-name">TripAdvisor</div>
-      <div class="plat-desc">Ключевая площадка для fine dining</div>
-    </div>
+  <div class="plat-row">
+    <div class="plat rv"><div class="plat-n">Яндекс Карты</div><div class="plat-d">Основная площадка для ресторанов в России</div></div>
+    <div class="plat rv d1"><div class="plat-n">2ГИС</div><div class="plat-d">Второй по охвату сервис карт и отзывов</div></div>
+    <div class="plat rv d2"><div class="plat-n">Google Maps</div><div class="plat-d">Международная аудитория и туристы</div></div>
+    <div class="plat rv d3"><div class="plat-n">TripAdvisor</div><div class="plat-d">Ключевая площадка для fine dining</div></div>
+    <div class="plat rv d4"><div class="plat-n">Delivery</div><div class="plat-d">Яндекс Еда, Delivery Club, агрегаторы</div></div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results" id="results">
+  <div class="rv">
+    <div class="label">результаты</div>
+    <h2 style="font-family:'Bodoni Moda',serif;font-size:48px;font-weight:400;letter-spacing:-1px;margin-top:20px">Цифры, которые <em style="font-style:italic;color:var(--ember)">говорят</em></h2>
+  </div>
+  <div class="results-grid">
+    <div class="result rv"><div class="result-val">+0<span class="emb">.9</span></div><div class="result-lbl">Средний рост рейтинга<br>за первые 3 месяца</div></div>
+    <div class="result rv d1"><div class="result-val">200<span class="emb">+</span></div><div class="result-lbl">Ресторанов, кафе и dark kitchen<br>под нашим управлением</div></div>
+    <div class="result rv d2"><div class="result-val">+40<span class="emb">%</span></div><div class="result-lbl">Рост бронирований<br>в первый квартал работы</div></div>
+    <div class="result rv d3"><div class="result-val">15K<span class="emb">+</span></div><div class="result-lbl">Отзывов опубликовано<br>на всех площадках</div></div>
   </div>
 </section>
 
 <!-- PROCESS -->
 <section class="process" id="process">
-  <div class="process-layout">
-    <div class="process-sticky reveal">
-      <div class="about-label">процесс</div>
-      <h2>Как мы<br><i>работаем</i></h2>
-      <p class="process-sub">От аудита до результата — прозрачно и под вашим контролем</p>
-      <div class="process-hand">всего 4 шага →</div>
+  <div class="process-lay">
+    <div class="process-sticky rv">
+      <div class="label">процесс</div>
+      <h2 style="margin-top:20px">Как это <em>работает</em></h2>
+      <p class="process-sub">Чёткая система. Никакой импровизации. Каждый шаг — под контролем.</p>
     </div>
     <div class="steps">
-      <div class="step-card reveal">
-        <div class="step-n">1</div>
-        <div>
-          <h3>Аудит репутации</h3>
-          <p>Анализируем текущий рейтинг, все отзывы, конкурентов и позиции на каждой площадке</p>
-        </div>
+      <div class="stp rv"><div class="stp-n">01</div><div><h3>Аудит текущей репутации</h3><p>Анализируем рейтинги, тональность отзывов, позиции конкурентов, состояние карточек на каждой площадке</p></div></div>
+      <div class="stp rv d1"><div class="stp-n">02</div><div><h3>Стратегия по площадкам</h3><p>Разрабатываем план с конкретными KPI: объём, площадки, тональность, сроки. Фиксируем в договоре</p></div></div>
+      <div class="stp rv d2"><div class="stp-n">03</div><div><h3>Системная работа</h3><p>Публикация отзывов, ответы на негатив, оптимизация карточек. Еженедельный контроль динамики</p></div></div>
+      <div class="stp rv d3"><div class="stp-n">04</div><div><h3>Усиление результата</h3><p>Анализ эффективности, корректировка стратегии, масштабирование на новые площадки и точки</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR WHOM -->
+<section class="whom">
+  <div class="rv">
+    <div class="label" style="color:rgba(255,255,255,.3)">для кого</div>
+    <h2 style="font-family:'Bodoni Moda',serif;font-size:48px;font-weight:400;letter-spacing:-1px;margin-top:20px;color:var(--paper)">Работаем с теми, кому<br>нужен <em style="font-style:italic">результат</em></h2>
+  </div>
+  <div class="whom-grid">
+    <div class="whom-card rv"><h3>Рестораны и кафе</h3><p>От одного заведения до сети. Любой формат — от кофейни до fine dining</p></div>
+    <div class="whom-card rv d1"><h3>Dark kitchen</h3><p>Где отзывы на агрегаторах — единственный канал доверия и выбора</p></div>
+    <div class="whom-card rv d2"><h3>Доставка еды</h3><p>Рейтинг в приложении = позиция в выдаче = количество заказов</p></div>
+    <div class="whom-card rv d1"><h3>Сети и франшизы</h3><p>Единый стандарт репутации на десятки точек. Масштабируем без потери качества</p></div>
+    <div class="whom-card rv d2"><h3>Управляющие компании</h3><p>Контроль репутации всех объектов в одном окне. Отчётность для собственника</p></div>
+    <div class="whom-card rv d3"><h3>Новые проекты</h3><p>Запуск репутации с нуля. Первые отзывы, первый рейтинг, первое доверие</p></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq" style="margin-top:40px">
+  <div class="faq-grid">
+    <div class="rv">
+      <div class="label">вопросы</div>
+      <h2 style="margin-top:20px">Частые <em>вопросы</em></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item rv">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Это безопасно для бизнеса? <span class="plus">+</span></div>
+        <div class="faq-a"><p>Работаем в рамках правил площадок. Используем только аккаунты с историей и разнообразным поведением. За 3 года — ни одного бана клиента.</p></div>
       </div>
-      <div class="step-card reveal d1">
-        <div class="step-n">2</div>
-        <div>
-          <h3>Стратегия</h3>
-          <p>Индивидуальный план с чёткими KPI: сколько отзывов, на каких площадках, в какие сроки</p>
-        </div>
+      <div class="faq-item rv d1">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Как быстро будет результат? <span class="plus">+</span></div>
+        <div class="faq-a"><p>Первые изменения в рейтинге — через 2-3 недели. Стабильный целевой рейтинг — через 2-3 месяца. Зависит от стартовой позиции и объёма.</p></div>
       </div>
-      <div class="step-card reveal d2">
-        <div class="step-n">3</div>
-        <div>
-          <h3>Реализация</h3>
-          <p>Публикация отзывов, ответы на негатив, оптимизация карточек — всё по плану</p>
-        </div>
+      <div class="faq-item rv d2">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Что если площадка удалит отзывы? <span class="plus">+</span></div>
+        <div class="faq-a"><p>Процент удалений — менее 5%. Все удалённые отзывы компенсируем бесплатно. Это прописано в договоре.</p></div>
       </div>
-      <div class="step-card reveal d3">
-        <div class="step-n">4</div>
-        <div>
-          <h3>Отчётность и рост</h3>
-          <p>Ежемесячный отчёт: динамика рейтинга, количество отзывов, рост потока гостей</p>
-        </div>
+      <div class="faq-item rv d3">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Работаете с одной точкой или только с сетями? <span class="plus">+</span></div>
+        <div class="faq-a"><p>С любым форматом — от одного заведения до 200+ точек. Стоимость зависит от объёма и задач.</p></div>
+      </div>
+      <div class="faq-item rv d4">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Есть ли гарантии? <span class="plus">+</span></div>
+        <div class="faq-a"><p>Да. KPI фиксируем в договоре. Если не достигаем целевого рейтинга — корректируем план за свой счёт.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- WHY US -->
-<section class="why" style="margin-top: 40px;">
-  <div class="why-header reveal">
-    <div class="about-label">почему мы</div>
-    <h2>Наши <i>преимущества</i></h2>
-  </div>
-  <div class="why-mosaic">
-    <div class="why-tile reveal">
-      <div class="why-tile-n">01</div>
-      <h3>Только HoReCa</h3>
-      <p>Работаем исключительно с ресторанами. Знаем специфику, сезонность, поведение гостей</p>
-    </div>
-    <div class="why-tile reveal d1">
-      <div class="why-tile-n">02</div>
-      <h3>Реальные аккаунты</h3>
-      <p>Проверенные профили с историей — никаких ботов и банов</p>
-    </div>
-    <div class="why-tile hero-tile reveal d2">
-      <div>
-        <div class="why-tile-n">✦ главное</div>
-        <h3>Средний рост рейтинга</h3>
-      </div>
-      <div>
-        <div class="hero-tile-big">+0.9</div>
-        <div class="hero-tile-caption">баллов за первые 3 месяца на Яндекс Картах и 2ГИС</div>
-      </div>
-    </div>
-    <div class="why-tile reveal">
-      <div class="why-tile-n">03</div>
-      <h3>Уникальный тон</h3>
-      <p>Каждый отзыв адаптирован под стиль заведения и аудиторию. Без шаблонов</p>
-    </div>
-    <div class="why-tile reveal d1">
-      <div class="why-tile-n">04</div>
-      <h3>Гарантия в договоре</h3>
-      <p>Фиксируем KPI. Не достигли — корректируем план за свой счёт</p>
-    </div>
-  </div>
+<!-- CONSULTING -->
+<section class="consulting" id="consulting">
+  <div class="label rv" style="justify-content:center;display:flex">скоро</div>
+  <h2 class="rv d1" style="margin-top:20px">Консалтинг по <em>доставке еды</em></h2>
+  <div class="cons-tag rv d2"><span class="dot"></span> Раздел в разработке</div><br>
+  <div class="cons-box rv d3"><p>Стратегия, операционка, unit-экономика доставки. Для тех, кто строит или масштабирует delivery-направление. Скоро здесь.</p></div>
 </section>
 
-<!-- REVIEWS -->
-<section class="reviews" id="reviews">
-  <div class="reviews-top reveal">
-    <div class="about-label" style="color: rgba(255,255,255,0.3);">отзывы клиентов</div>
-    <h2>Нам <i>доверяют</i></h2>
-  </div>
-  <div class="rev-grid">
-    <div class="rev-card reveal">
-      <div class="rev-stars">★ ★ ★ ★ ★</div>
-      <div class="rev-text">«Рейтинг на Яндекс Картах вырос с 3.9 до 4.7 за три месяца. Бронирования выросли почти вдвое — окупилось моментально»</div>
-      <div class="rev-who">
-        <div class="rev-ava">АМ</div>
-        <div>
-          <div class="rev-name">Алексей Морозов</div>
-          <div class="rev-role">Управляющий, «Гастроном»</div>
-        </div>
-      </div>
-    </div>
-    <div class="rev-card reveal d1">
-      <div class="rev-stars">★ ★ ★ ★ ★</div>
-      <div class="rev-text">«Превратили наш негатив в преимущество. Каждый ответ — точечный и грамотный. Такого подхода раньше не встречал»</div>
-      <div class="rev-who">
-        <div class="rev-ava">ДК</div>
-        <div>
-          <div class="rev-name">Дмитрий Ким</div>
-          <div class="rev-role">Основатель, «Umami»</div>
-        </div>
-      </div>
-    </div>
-    <div class="rev-card reveal d2">
-      <div class="rev-stars">★ ★ ★ ★ ★</div>
-      <div class="rev-text">«Наконец агентство, которое понимает рестораны. Отзывы выглядят естественно — потому что подход действительно индивидуальный»</div>
-      <div class="rev-who">
-        <div class="rev-ava">МВ</div>
-        <div>
-          <div class="rev-name">Мария Волкова</div>
-          <div class="rev-role">Владелица, «Мамина кухня»</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta" style="margin-top: 40px;">
-  <h2 class="reveal">Готовы <i>усилить</i><br>репутацию?</h2>
-  <p class="cta-sub reveal d1">Оставьте заявку — проведём бесплатный аудит и покажем точки роста</p>
-  <a href="#contact" class="cta-btn reveal d2">
-    получить аудит
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+<!-- FINAL CTA -->
+<section class="final-cta" style="margin-top:40px">
+  <h2 class="rv">Репутация —<br>это <em>инвестиция</em></h2>
+  <p class="rv d1">Один потерянный балл стоит вам больше, чем год работы с нами. Начните с бесплатного аудита.</p>
+  <a href="#contact" class="btn btn-ember rv d2" style="position:relative">
+    Обсудить задачу
+    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
   </a>
-  <div class="cta-hand reveal d3">это бесплатно, честно ↑</div>
 </section>
 
 <!-- CONTACT -->
-<section class="contact" id="contact">
+<section class="contact" id="contact" style="margin-top:40px">
   <div class="contact-grid">
-    <div class="reveal">
-      <div class="about-label" style="color: rgba(255,255,255,0.3);">связаться</div>
-      <h2>Оставьте <i>заявку</i></h2>
-      <p class="contact-desc">Свяжемся в течение 2 часов. Обсудим задачи и предложим стратегию для вашего ресторана</p>
+    <div class="rv">
+      <div class="label">контакт</div>
+      <h2 style="margin-top:20px">Оставьте <em>заявку</em></h2>
+      <p class="contact-desc">Ответим в течение 2 часов. Проведём бесплатный аудит текущей репутации вашего ресторана.</p>
       <div class="contact-links">
         <a href="#">hello@restorev.ru</a>
         <a href="#">Telegram</a>
         <a href="#">WhatsApp</a>
       </div>
     </div>
-    <div class="c-form reveal d1">
-      <input type="text" class="c-field" placeholder="Ваше имя">
-      <input type="text" class="c-field" placeholder="Название ресторана">
-      <input type="tel" class="c-field" placeholder="Телефон">
-      <input type="text" class="c-field" placeholder="Telegram или WhatsApp">
-      <input type="text" class="c-field" placeholder="Расскажите коротко о задаче">
-      <button class="c-btn">отправить заявку →</button>
+    <div class="c-form rv d1">
+      <input class="c-inp" placeholder="Имя">
+      <input class="c-inp" placeholder="Ресторан или компания">
+      <input class="c-inp" placeholder="Телефон">
+      <input class="c-inp" placeholder="Telegram или WhatsApp">
+      <input class="c-inp" placeholder="Коротко о задаче">
+      <button class="c-submit">Отправить заявку →</button>
     </div>
-  </div>
-</section>
-
-<!-- CONSULTING -->
-<section class="consulting" id="consulting" style="margin-top: 40px;">
-  <div class="about-label reveal">скоро</div>
-  <h2 class="reveal d1">Консалтинг по <i>доставке еды</i></h2>
-  <div class="cons-tag reveal d2"><span class="pulse-dot"></span> раздел в разработке</div>
-  <div class="cons-box reveal d3">
-    <p>Здесь появится информация о консалтинге по доставке. Раздел наполняется контентом</p>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="f-logo">restorev</div>
-  <div class="f-links">
-    <a href="#services">услуги</a>
-    <a href="#process">процесс</a>
-    <a href="#reviews">отзывы</a>
-    <a href="#contact">контакты</a>
+  <div class="f-logo">Restorev</div>
+  <div class="f-mid">
+    <a href="#services">Услуги</a>
+    <a href="#results">Результаты</a>
+    <a href="#process">Процесс</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Контакты</a>
   </div>
   <div class="f-copy">© 2026</div>
 </footer>
 
 <script>
-const obs = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
-}, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+const o=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('v')})},{threshold:.1,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>o.observe(el));
 </script>
-
 </body>
 </html>
